@@ -1,0 +1,148 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="s" uri="http://www.springframework.org/tags" %>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="frm"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chờ thanh toán</title>
+    <style>
+
+
+        .vertical-menu {
+            width: 200px;
+            background-color: #FAFAFA;
+            position: absolute;
+            left: 160px;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .vertical-menu a {
+            background-color: #FAFAFA;
+            color: black;
+            display: block;
+            padding: 12px;
+            text-decoration: none;
+        }
+
+        .vertical-menu a:hover {
+            background-color: #b1dfbb;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-item {
+            margin: 0 5px;
+        }
+
+        .page-item a {
+            display: block;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            width: 30px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+        }
+
+        .page-item.active a {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+    </style>
+
+</head>
+<body>
+<%@ include file="../../Index/_Header_No_Register.jsp" %>
+
+<div class="container" style="padding-top: 90px">
+
+    <div class="vertical-menu">
+        <a href="/KhachHang/HoaDon/ChoThanhToan/${maKH}" style="color: black;font-size: 18px;font-weight: lighter;margin-left: 10px;margin-top: 10px">Chờ thanh toán</a>
+        <a href="/KhachHang/HoaDon/ChoXacNhan/${maKH}" style="color: black;font-size: 18px;font-weight: lighter;margin-left: 10px">Chờ xác nhận</a>
+        <a href="/KhachHang/HoaDon/DangGiaoHang/${maKH}" style="color: black;font-size: 18px;font-weight: lighter;margin-left: 10px">Chờ đóng gói</a>
+        <a href="/KhachHang/HoaDon/DangGiaoHang/${maKH}" style="color: black;font-size: 18px;font-weight: lighter;margin-left: 10px">Đang giao</a>
+        <a href="/KhachHang/HoaDon/GiaoHangThanhCong/${maKH}" style="color: black;font-size: 18px;font-weight: lighter;margin-left: 10px">Hoàn thành</a>
+        <a href="/KhachHang/HoaDon/HuyDonHang/${maKH}" style="color: black;font-size: 18px;font-weight: lighter;margin-left: 10px">Đã hủy</a>
+    </div>
+
+    <div style="margin-left: 180px; padding: 1px 16px;">
+
+        <h3 style="margin-top: 30px;margin-bottom: 30px">Các đơn hàng chờ thanh toán</h3>
+        <form method="post">
+            <input type="hidden" name="idKH" value="${idKH}">
+            <table class="table" style="">
+                <tr>
+                    <td scope="col" style="color: black;font-size: 17px">Mã hóa đơn</td>
+                    <td scope="col" style="color: black;font-size: 17px">Ngày thanh toán</td>
+                    <td scope="col"  style="color: black;font-size: 17px">Thành tiền</td>
+                    <td scope="col"  style="color: black;font-size: 17px">Thông tin nhận hàng</td>
+                    <td scope="col"  style="color: black;font-size: 17px">Action</td>
+                </tr>
+                <c:forEach items="${page.content}" var="list">
+                    <tr>
+                        <td scope="row">${list.maHoaDon}</td>
+                        <td style="padding-left: 40px">
+                            <c:set var="dateTimeString" value="${list.ngayThanhToan}"/>
+                            <fmt:parseDate value="${dateTimeString}" var="parsedDate"
+                                           pattern="yyyy-MM-dd'T'HH:mm:ss"/>
+                            <fmt:formatDate value="${parsedDate}" var="formattedDate"
+                                            pattern="yyyy-MM-dd HH:mm:ss"/>
+                                ${formattedDate}
+                        </td>
+                        <td>
+                                    <fmt:formatNumber type="" value="${list.thanhTien}" pattern="#,##0" /> VNĐ
+                        </td>
+                        <td style="width: 300px">${list.ghiChu}</td>
+                        <td>
+                            <a href="/nguoiDung/HoaDon/${list.id}">
+                                <p style="font-size: 17px">
+                                    Mua hàng
+                                </p>
+                            </a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </table>
+            <ul class="pagination">
+                <c:if test="${page.hasPrevious()}">
+                    <li class="page-item">
+                        <a class="page-link" href="?pageNo=${page.number - 1}" style="width: 50px;height: 40px">Pre</a>
+                    </li>
+                </c:if>
+
+                <c:forEach begin="${page.number - 2 > 0 ? page.number - 2 : 0}"
+                           end="${page.number + 2 < page.totalPages ? page.number + 2 : page.totalPages - 1}" var="i">
+                    <li class="page-item ${i == page.number ? 'active' : ''}">
+                        <a class="page-link" href="?pageNo=${i}">${i + 1}</a>
+                    </li>
+                </c:forEach>
+
+                <c:if test="${page.hasNext()}">
+                    <li class="page-item">
+                        <a class="page-link" href="?pageNo=${page.number + 1}" style="width: 50px;height: 40px">Next</a>
+                    </li>
+                </c:if>
+            </ul>
+        </form>
+
+    </div>
+
+</div>
+</body>
+</html>
